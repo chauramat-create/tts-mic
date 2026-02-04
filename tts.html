@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Mic Router - Talk Through Your Mic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            color: #856404;
+            font-size: 13px;
+        }
+
+        .warning strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .warning ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .warning li {
+            margin-bottom: 4px;
+        }
+
+        .status {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            color: #155724;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .status.active {
+            display: block;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .slider-group {
+            margin-bottom: 20px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #764ba2;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: right;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .visualizer {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border: 2px solid #2196F3;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #0d47a1;
+            font-size: 13px;
+        }
+
+        .info strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .speaking {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ TTS Mic Router</h1>
+        <p class="subtitle">Type text and speak through your microphone using Text-to-Speech</p>
+
+        <div class="warning">
+            <strong>⚠️ Important Setup Instructions:</strong>
+            <ul>
+                <li>Click "Start Audio Routing" to initialize the virtual microphone</li>
+                <li>In apps like Discord/Zoom, select your browser tab as the audio input source (use browser's tab audio capture)</li>
+                <li>Or use virtual audio cable software (VB-Cable, BlackHole) to route browser audio system-wide</li>
+                <li>Type your message and click "Speak" to transmit through your mic</li>
+            </ul>
+        </div>
+
+        <div class="status" id="status">
+            ✅ Audio routing active - TTS will output through virtual mic
+        </div>
+
+        <div class="control-group">
+            <label for="textInput">Enter Text to Speak:</label>
+            <textarea id="textInput" placeholder="Type what you want to say here...">Hello! This is a test of the text to speech microphone router.</textarea>
+        </div>
+
+        <div class="control-group">
+            <label for="voiceSelect">Voice:</label>
+            <select id="voiceSelect">
+                <option value="">Loading voices...</option>
+            </select>
+        </div>
+
+        <div class="slider-group">
+            <label for="rateSlider">Speech Rate:</label>
+            <div class="slider-container">
+                <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+                <span class="slider-value" id="rateValue">1.0x</span>
+            </div>
+        </div>
+
+        <div class="slider-group">
+            <label for="pitchSlider">Pitch:</label>
+            <div class="slider-container">
+                <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+                <span class="slider-value" id="pitchValue">1.0</span>
+            </div>
+        </div>
+
+        <div class="slider-group">
+            <label for="volumeSlider">Volume:</label>
+            <div class="slider-container">
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                <span class="slider-value" id="volumeValue">100%</span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-success" id="startBtn">Start Audio Routing</button>
+            <button class="btn-danger" id="stopBtn" disabled>Stop Routing</button>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" id="speakBtn" disabled>🔊 Speak</button>
+            <button class="btn-danger" id="cancelBtn" disabled>⏹️ Stop Speaking</button>
+        </div>
+
+        <div class="visualizer">
+            <canvas id="visualizer"></canvas>
+        </div>
+
+        <div class="info">
+            <strong>💡 How to use in other apps:</strong>
+            Most modern browsers allow tab audio capture. In Discord/Zoom/etc., look for an option to share audio from a browser tab or use screen sharing with audio enabled.
+        </div>
+    </div>
+
+    <script>
+        let audioContext = null;
+        let destination = null;
+        let analyser = null;
+        let isRouting = false;
+        let synth = window.speechSynthesis;
+        let voices = [];
+        let animationId = null;
+
+        const textInput = document.getElementById('textInput');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const rateSlider = document.getElementById('rateSlider');
+        const pitchSlider = document.getElementById('pitchSlider');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const rateValue = document.getElementById('rateValue');
+        const pitchValue = document.getElementById('pitchValue');
+        const volumeValue = document.getElementById('volumeValue');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const speakBtn = document.getElementById('speakBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const status = document.getElementById('status');
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 100;
+
+        // Load voices
+        function loadVoices() {
+            voices = synth.getVoices();
+            voiceSelect.innerHTML = '';
+            
+            voices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        // Load voices on page load and when they change
+        loadVoices();
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = loadVoices;
+        }
+
+        // Update slider values
+        rateSlider.addEventListener('input', (e) => {
+            rateValue.textContent = e.target.value + 'x';
+        });
+
+        pitchSlider.addEventListener('input', (e) => {
+            pitchValue.textContent = e.target.value;
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            volumeValue.textContent = Math.round(e.target.value * 100) + '%';
+        });
+
+        // Start audio routing
+        startBtn.addEventListener('click', async () => {
+            try {
+                // Create audio context
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create analyser for visualization
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                
+                // Create destination for routing
+                destination = audioContext.createMediaStreamDestination();
+                
+                // Connect analyser to destination
+                analyser.connect(destination);
+                
+                isRouting = true;
+                status.classList.add('active');
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                speakBtn.disabled = false;
+                
+                visualize();
+                
+                console.log('Audio routing started');
+                console.log('MediaStream available:', destination.stream);
+                
+            } catch (error) {
+                console.error('Error starting audio routing:', error);
+                alert('Error starting audio routing: ' + error.message);
+            }
+        });
+
+        // Stop audio routing
+        stopBtn.addEventListener('click', () => {
+            if (synth.speaking) {
+                synth.cancel();
+            }
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            
+            destination = null;
+            analyser = null;
+            isRouting = false;
+            
+            status.classList.remove('active');
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            speakBtn.disabled = true;
+            cancelBtn.disabled = true;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            console.log('Audio routing stopped');
+        });
+
+        // Speak button
+        speakBtn.addEventListener('click', () => {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                alert('Please enter some text to speak');
+                return;
+            }
+            
+            if (!isRouting) {
+                alert('Please start audio routing first');
+                return;
+            }
+            
+            // Cancel any ongoing speech
+            synth.cancel();
+            
+            // Create utterance
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Set voice
+            if (voices.length > 0 && voiceSelect.value) {
+                utterance.voice = voices[voiceSelect.value];
+            }
+            
+            // Set properties
+            utterance.rate = parseFloat(rateSlider.value);
+            utterance.pitch = parseFloat(pitchSlider.value);
+            utterance.volume = parseFloat(volumeSlider.value);
+            
+            // Event handlers
+            utterance.onstart = () => {
+                speakBtn.disabled = true;
+                cancelBtn.disabled = false;
+                speakBtn.classList.add('speaking');
+            };
+            
+            utterance.onend = () => {
+                speakBtn.disabled = false;
+                cancelBtn.disabled = true;
+                speakBtn.classList.remove('speaking');
+            };
+            
+            utterance.onerror = (event) => {
+                console.error('Speech error:', event);
+                speakBtn.disabled = false;
+                cancelBtn.disabled = true;
+                speakBtn.classList.remove('speaking');
+            };
+            
+            // Speak
+            synth.speak(utterance);
+            
+            // Route audio through our destination
+            if (audioContext) {
+                const audioElement = new Audio();
+                const source = audioContext.createMediaElementSource(audioElement);
+                source.connect(analyser);
+                source.connect(audioContext.destination);
+            }
+        });
+
+        // Cancel button
+        cancelBtn.addEventListener('click', () => {
+            synth.cancel();
+            speakBtn.disabled = false;
+            cancelBtn.disabled = true;
+            speakBtn.classList.remove('speaking');
+        });
+
+        // Visualizer
+        function visualize() {
+            if (!analyser) return;
+            
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            function draw() {
+                if (!isRouting) return;
+                
+                animationId = requestAnimationFrame(draw);
+                
+                analyser.getByteTimeDomainData(dataArray);
+                
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#667eea';
+                ctx.beginPath();
+                
+                const sliceWidth = canvas.width / bufferLength;
+                let x = 0;
+                
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = dataArray[i] / 128.0;
+                    const y = v * canvas.height / 2;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    x += sliceWidth;
+                }
+                
+                ctx.lineTo(canvas.width, canvas.height / 2);
+                ctx.stroke();
+            }
+            
+            draw();
+        }
+
+        // Enter key to speak
+        textInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey && !speakBtn.disabled) {
+                speakBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
