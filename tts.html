@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TTS Mic Router - Talk Through Your Mic</title>
+    <title>ROBLOX TTS Mic Router</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -12,8 +14,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+            background: #393b3d;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,130 +24,184 @@
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
+            background: #191919;
+            border: 3px solid #000;
+            border-radius: 0;
+            box-shadow: 0 0 0 2px #2d2d2d;
+            padding: 0;
             max-width: 700px;
             width: 100%;
         }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 32px;
-            text-align: center;
+        .title-bar {
+            background: linear-gradient(180deg, #00a2ff 0%, #0074bd 100%);
+            border-bottom: 3px solid #000;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
+        .title-bar h1 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .roblox-icon {
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+            font-size: 16px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .panel {
+            background: #2d2d2d;
+            border: 2px solid #000;
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 0 1px #3a3a3a;
+        }
+
+        .panel-header {
+            background: linear-gradient(180deg, #4a4a4a 0%, #2d2d2d 100%);
+            border-bottom: 2px solid #000;
+            padding: 8px 12px;
+            color: #fff;
+            font-weight: 700;
             font-size: 14px;
-            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .warning {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
+        .panel-content {
             padding: 15px;
-            margin-bottom: 25px;
-            color: #856404;
-            font-size: 13px;
         }
 
-        .warning strong {
+        .warning-panel {
+            background: #ff9500;
+            border: 2px solid #000;
+            padding: 12px;
+            margin-bottom: 15px;
+            color: #000;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: inset 0 0 0 2px #ffb84d;
+        }
+
+        .warning-panel strong {
             display: block;
             margin-bottom: 8px;
+            font-size: 14px;
         }
 
-        .warning ul {
+        .warning-panel ul {
             margin-left: 20px;
-            margin-top: 8px;
         }
 
-        .warning li {
+        .warning-panel li {
             margin-bottom: 4px;
         }
 
-        .status {
-            background: #d4edda;
-            border: 2px solid #28a745;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 25px;
-            color: #155724;
-            font-weight: 600;
+        .status-panel {
+            background: #00a2ff;
+            border: 2px solid #000;
+            padding: 12px;
+            margin-bottom: 15px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
             text-align: center;
             display: none;
+            box-shadow: inset 0 0 0 2px #4dbdff;
         }
 
-        .status.active {
+        .status-panel.active {
             display: block;
         }
 
         .control-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         label {
             display: block;
-            color: #555;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 14px;
+            color: #fff;
+            margin-bottom: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         textarea {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 10px;
+            border: 2px solid #000;
+            background: #3a3a3a;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'Source Sans Pro', Arial, sans-serif;
             resize: vertical;
-            min-height: 120px;
-            transition: border-color 0.3s;
+            min-height: 100px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         textarea:focus {
-            outline: none;
-            border-color: #667eea;
+            outline: 2px solid #00a2ff;
+            outline-offset: -2px;
+        }
+
+        textarea::placeholder {
+            color: #888;
         }
 
         select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 10px;
+            border: 2px solid #000;
+            background: #3a3a3a;
+            color: #fff;
             font-size: 14px;
+            font-family: 'Source Sans Pro', Arial, sans-serif;
             cursor: pointer;
-            background: white;
-            transition: border-color 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         select:focus {
-            outline: none;
-            border-color: #667eea;
+            outline: 2px solid #00a2ff;
+            outline-offset: -2px;
         }
 
         .slider-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .slider-container {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         input[type="range"] {
             flex: 1;
-            height: 6px;
-            border-radius: 3px;
-            background: #e0e0e0;
+            height: 8px;
+            border: 2px solid #000;
+            background: #3a3a3a;
             outline: none;
             -webkit-appearance: none;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         input[type="range"]::-webkit-slider-thumb {
@@ -153,200 +209,277 @@
             appearance: none;
             width: 20px;
             height: 20px;
-            border-radius: 50%;
-            background: #667eea;
+            background: linear-gradient(180deg, #00a2ff 0%, #0074bd 100%);
+            border: 2px solid #000;
             cursor: pointer;
-            transition: background 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         input[type="range"]::-webkit-slider-thumb:hover {
-            background: #764ba2;
+            background: linear-gradient(180deg, #4dbdff 0%, #00a2ff 100%);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:active {
+            background: linear-gradient(180deg, #0074bd 0%, #005a91 100%);
         }
 
         input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
-            border-radius: 50%;
-            background: #667eea;
+            background: linear-gradient(180deg, #00a2ff 0%, #0074bd 100%);
+            border: 2px solid #000;
             cursor: pointer;
-            border: none;
+            border-radius: 0;
         }
 
         .slider-value {
-            min-width: 50px;
-            text-align: right;
-            color: #667eea;
-            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+            color: #00a2ff;
+            font-weight: 700;
+            font-size: 14px;
+            background: #2d2d2d;
+            border: 2px solid #000;
+            padding: 4px 8px;
         }
 
         .button-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         button {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 12px 20px;
+            border: 2px solid #000;
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            font-family: 'Source Sans Pro', Arial, sans-serif;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            transition: all 0.1s;
+            box-shadow: 0 4px 0 #000;
+            position: relative;
+            top: 0;
+        }
+
+        button:hover:not(:disabled) {
+            top: 2px;
+            box-shadow: 0 2px 0 #000;
+        }
+
+        button:active:not(:disabled) {
+            top: 4px;
+            box-shadow: 0 0 0 #000;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(180deg, #00a2ff 0%, #0074bd 100%);
+            color: #fff;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
         }
 
         .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(180deg, #4dbdff 0%, #00a2ff 100%);
         }
 
         .btn-success {
-            background: #28a745;
-            color: white;
+            background: linear-gradient(180deg, #02b757 0%, #018a42 100%);
+            color: #fff;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
         }
 
         .btn-success:hover:not(:disabled) {
-            background: #218838;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            background: linear-gradient(180deg, #03d866 0%, #02b757 100%);
         }
 
         .btn-danger {
-            background: #e74c3c;
-            color: white;
+            background: linear-gradient(180deg, #ff4458 0%, #d6293a 100%);
+            color: #fff;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
         }
 
         .btn-danger:hover:not(:disabled) {
-            background: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+            background: linear-gradient(180deg, #ff6b7a 0%, #ff4458 100%);
         }
 
         button:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
+            filter: grayscale(50%);
         }
 
-        .visualizer {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
+        .visualizer-container {
+            background: #2d2d2d;
+            border: 2px solid #000;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 0 1px #3a3a3a;
+        }
+
+        .visualizer-header {
+            color: #00a2ff;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
         }
 
         canvas {
             width: 100%;
-            height: 100px;
-            border-radius: 8px;
-            background: #fff;
+            height: 80px;
+            border: 2px solid #000;
+            background: #191919;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .info {
-            background: #e7f3ff;
-            border: 2px solid #2196F3;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-            color: #0d47a1;
-            font-size: 13px;
+        .info-panel {
+            background: #2d2d2d;
+            border: 2px solid #00a2ff;
+            padding: 12px;
+            color: #00a2ff;
+            font-size: 12px;
+            box-shadow: inset 0 0 0 1px #3a3a3a, 0 0 10px rgba(0, 162, 255, 0.3);
         }
 
-        .info strong {
+        .info-panel strong {
             display: block;
             margin-bottom: 8px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        @keyframes pulse {
+        @keyframes blink {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.3; }
         }
 
         .speaking {
-            animation: pulse 1.5s infinite;
+            animation: blink 1s infinite;
+        }
+
+        .footer {
+            background: #191919;
+            border-top: 2px solid #000;
+            padding: 10px 15px;
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+        }
+
+        /* Roblox-style scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border: 2px solid #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00a2ff 0%, #0074bd 100%);
+            border: 2px solid #000;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #4dbdff 0%, #00a2ff 100%);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎙️ TTS Mic Router</h1>
-        <p class="subtitle">Type text and speak through your microphone using Text-to-Speech</p>
-
-        <div class="warning">
-            <strong>⚠️ Important Setup Instructions:</strong>
-            <ul>
-                <li>Click "Start Audio Routing" to initialize the virtual microphone</li>
-                <li>In apps like Discord/Zoom, select your browser tab as the audio input source (use browser's tab audio capture)</li>
-                <li>Or use virtual audio cable software (VB-Cable, BlackHole) to route browser audio system-wide</li>
-                <li>Type your message and click "Speak" to transmit through your mic</li>
-            </ul>
+        <div class="title-bar">
+            <div class="roblox-icon">R</div>
+            <h1>ROBLOX TTS MIC ROUTER</h1>
         </div>
 
-        <div class="status" id="status">
-            ✅ Audio routing active - TTS will output through virtual mic
-        </div>
+        <div class="content">
+            <div class="warning-panel">
+                <strong>⚠ SETUP INSTRUCTIONS</strong>
+                <ul>
+                    <li>Click "START AUDIO ROUTING" to initialize virtual mic</li>
+                    <li>Use browser tab audio capture in Discord/Zoom</li>
+                    <li>Or install VB-Cable/BlackHole for system-wide routing</li>
+                    <li>Type message and click "SPEAK" to transmit</li>
+                </ul>
+            </div>
 
-        <div class="control-group">
-            <label for="textInput">Enter Text to Speak:</label>
-            <textarea id="textInput" placeholder="Type what you want to say here...">Hello! This is a test of the text to speech microphone router.</textarea>
-        </div>
+            <div class="status-panel" id="status">
+                ✓ AUDIO ROUTING ACTIVE - TTS READY
+            </div>
 
-        <div class="control-group">
-            <label for="voiceSelect">Voice:</label>
-            <select id="voiceSelect">
-                <option value="">Loading voices...</option>
-            </select>
-        </div>
+            <div class="panel">
+                <div class="panel-header">TEXT INPUT</div>
+                <div class="panel-content">
+                    <label for="textInput">ENTER TEXT TO SPEAK:</label>
+                    <textarea id="textInput" placeholder="Type what you want to say here...">Hello! This is a test of the ROBLOX text to speech microphone router.</textarea>
+                </div>
+            </div>
 
-        <div class="slider-group">
-            <label for="rateSlider">Speech Rate:</label>
-            <div class="slider-container">
-                <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
-                <span class="slider-value" id="rateValue">1.0x</span>
+            <div class="panel">
+                <div class="panel-header">VOICE SETTINGS</div>
+                <div class="panel-content">
+                    <div class="control-group">
+                        <label for="voiceSelect">VOICE:</label>
+                        <select id="voiceSelect">
+                            <option value="">Loading voices...</option>
+                        </select>
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="rateSlider">SPEECH RATE:</label>
+                        <div class="slider-container">
+                            <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+                            <span class="slider-value" id="rateValue">1.0x</span>
+                        </div>
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="pitchSlider">PITCH:</label>
+                        <div class="slider-container">
+                            <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+                            <span class="slider-value" id="pitchValue">1.0</span>
+                        </div>
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="volumeSlider">VOLUME:</label>
+                        <div class="slider-container">
+                            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+                            <span class="slider-value" id="volumeValue">100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-success" id="startBtn">▶ START ROUTING</button>
+                <button class="btn-danger" id="stopBtn" disabled>■ STOP ROUTING</button>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" id="speakBtn" disabled>🔊 SPEAK</button>
+                <button class="btn-danger" id="cancelBtn" disabled>⏹ CANCEL</button>
+            </div>
+
+            <div class="visualizer-container">
+                <div class="visualizer-header">AUDIO VISUALIZER</div>
+                <canvas id="visualizer"></canvas>
+            </div>
+
+            <div class="info-panel">
+                <strong>💡 HOW TO USE IN OTHER APPS:</strong>
+                Most modern browsers support tab audio capture. In Discord/Zoom, look for screen sharing with audio or tab audio options.
             </div>
         </div>
 
-        <div class="slider-group">
-            <label for="pitchSlider">Pitch:</label>
-            <div class="slider-container">
-                <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
-                <span class="slider-value" id="pitchValue">1.0</span>
-            </div>
-        </div>
-
-        <div class="slider-group">
-            <label for="volumeSlider">Volume:</label>
-            <div class="slider-container">
-                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
-                <span class="slider-value" id="volumeValue">100%</span>
-            </div>
-        </div>
-
-        <div class="button-group">
-            <button class="btn-success" id="startBtn">Start Audio Routing</button>
-            <button class="btn-danger" id="stopBtn" disabled>Stop Routing</button>
-        </div>
-
-        <div class="button-group">
-            <button class="btn-primary" id="speakBtn" disabled>🔊 Speak</button>
-            <button class="btn-danger" id="cancelBtn" disabled>⏹️ Stop Speaking</button>
-        </div>
-
-        <div class="visualizer">
-            <canvas id="visualizer"></canvas>
-        </div>
-
-        <div class="info">
-            <strong>💡 How to use in other apps:</strong>
-            Most modern browsers allow tab audio capture. In Discord/Zoom/etc., look for an option to share audio from a browser tab or use screen sharing with audio enabled.
+        <div class="footer">
+            ROBLOX TTS MIC ROUTER v1.0 | NOT AFFILIATED WITH ROBLOX CORPORATION
         </div>
     </div>
 
@@ -377,7 +510,7 @@
 
         // Set canvas size
         canvas.width = canvas.offsetWidth;
-        canvas.height = 100;
+        canvas.height = 80;
 
         // Load voices
         function loadVoices() {
@@ -470,7 +603,8 @@
             cancelBtn.disabled = true;
             
             // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#191919';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             console.log('Audio routing stopped');
         });
@@ -527,14 +661,6 @@
             
             // Speak
             synth.speak(utterance);
-            
-            // Route audio through our destination
-            if (audioContext) {
-                const audioElement = new Audio();
-                const source = audioContext.createMediaElementSource(audioElement);
-                source.connect(analyser);
-                source.connect(audioContext.destination);
-            }
         });
 
         // Cancel button
@@ -559,11 +685,11 @@
                 
                 analyser.getByteTimeDomainData(dataArray);
                 
-                ctx.fillStyle = '#fff';
+                ctx.fillStyle = '#191919';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
                 ctx.lineWidth = 2;
-                ctx.strokeStyle = '#667eea';
+                ctx.strokeStyle = '#00a2ff';
                 ctx.beginPath();
                 
                 const sliceWidth = canvas.width / bufferLength;
