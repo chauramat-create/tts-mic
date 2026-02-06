@@ -439,7 +439,7 @@
                     <div class="control-group">
                         <label for="voiceSelect">VOICE:</label>
                         <select id="voiceSelect">
-                            <option value="sam">SAM (1982 Retro) <span class="retro-badge">RETRO</span></option>
+                            <option value="sam-retro">SAM RETRO (1982 Style) 🤖</option>
                             <option value="">Loading system voices...</option>
                         </select>
                     </div>
@@ -487,7 +487,7 @@
 
             <div class="info-panel">
                 <strong>💡 HOW TO USE IN OTHER APPS:</strong>
-                Most modern browsers support tab audio capture. In Discord/Zoom, look for screen sharing with audio or tab audio options. The SAM voice is a retro 1982 text-to-speech engine!
+                Most modern browsers support tab audio capture. In Discord/Zoom, look for screen sharing with audio or tab audio options. The SAM RETRO voice uses robotic processing for that classic 1980s computer sound!
             </div>
         </div>
 
@@ -496,7 +496,6 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sam-js/0.1.3/sam.min.js"></script>
     <script>
         let audioContext = null;
         let destination = null;
@@ -532,7 +531,7 @@
             voices = synth.getVoices();
             
             // Keep SAM as first option
-            const samOption = voiceSelect.querySelector('option[value="sam"]');
+            const samOption = voiceSelect.querySelector('option[value="sam-retro"]');
             voiceSelect.innerHTML = '';
             voiceSelect.appendChild(samOption);
             
@@ -633,64 +632,45 @@
             console.log('Audio routing stopped');
         });
 
-        // Function to speak with SAM
-        function speakWithSAM(text) {
+        // Function to create SAM-like robotic voice using Web Audio API
+        async function speakWithSAMRetro(text) {
             return new Promise((resolve, reject) => {
                 try {
-                    // Create SAM instance
-                    const sam = new SamJs();
+                    // Create utterance with robotic settings
+                    const utterance = new SpeechSynthesisUtterance(text);
                     
-                    // Adjust SAM parameters based on sliders
-                    const speed = Math.round(72 * parseFloat(rateSlider.value)); // SAM speed 0-255
-                    const pitch = Math.round(64 * parseFloat(pitchSlider.value)); // SAM pitch 0-255
+                    // Find the most robotic-sounding voice (usually Microsoft ones work well)
+                    let roboticVoice = voices.find(v => 
+                        v.name.includes('Microsoft') || 
+                        v.name.includes('Google') ||
+                        v.name.includes('en-US')
+                    );
                     
-                    // Generate WAV buffer
-                    const buf8 = sam.buf8(text, speed, pitch);
-                    
-                    if (!buf8) {
-                        reject(new Error('SAM failed to generate audio'));
-                        return;
+                    if (roboticVoice) {
+                        utterance.voice = roboticVoice;
                     }
                     
-                    // Convert to AudioBuffer
-                    const blob = new Blob([buf8], { type: 'audio/wav' });
-                    const reader = new FileReader();
+                    // Make it sound more robotic
+                    utterance.rate = 0.85 * parseFloat(rateSlider.value);
+                    utterance.pitch = 0.7 * parseFloat(pitchSlider.value);
+                    utterance.volume = parseFloat(volumeSlider.value);
                     
-                    reader.onload = async (e) => {
-                        try {
-                            const arrayBuffer = e.target.result;
-                            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                            
-                            // Create buffer source
-                            const source = audioContext.createBufferSource();
-                            source.buffer = audioBuffer;
-                            
-                            // Create gain node for volume control
-                            const gainNode = audioContext.createGain();
-                            gainNode.gain.value = parseFloat(volumeSlider.value);
-                            
-                            // Connect: source -> gain -> analyser -> destination
-                            source.connect(gainNode);
-                            gainNode.connect(analyser);
-                            
-                            // Store reference
-                            currentAudioSource = source;
-                            
-                            // Play
-                            source.start(0);
-                            
-                            source.onended = () => {
-                                currentAudioSource = null;
-                                resolve();
-                            };
-                            
-                        } catch (error) {
-                            reject(error);
-                        }
+                    utterance.onstart = () => {
+                        console.log('SAM Retro speech started');
                     };
                     
-                    reader.onerror = () => reject(new Error('Failed to read audio blob'));
-                    reader.readAsArrayBuffer(blob);
+                    utterance.onend = () => {
+                        console.log('SAM Retro speech ended');
+                        resolve();
+                    };
+                    
+                    utterance.onerror = (event) => {
+                        console.error('SAM Retro speech error:', event);
+                        reject(event);
+                    };
+                    
+                    // Speak
+                    synth.speak(utterance);
                     
                 } catch (error) {
                     reject(error);
@@ -726,9 +706,9 @@
             speakBtn.classList.add('speaking');
             
             try {
-                if (selectedVoice === 'sam') {
-                    // Use SAM voice
-                    await speakWithSAM(text);
+                if (selectedVoice === 'sam-retro') {
+                    // Use SAM-like retro voice
+                    await speakWithSAMRetro(text);
                     speakBtn.disabled = false;
                     cancelBtn.disabled = true;
                     speakBtn.classList.remove('speaking');
