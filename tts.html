@@ -390,6 +390,17 @@
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(180deg, #4dbdff 0%, #00a2ff 100%);
         }
+
+        .retro-badge {
+            display: inline-block;
+            background: #ff9500;
+            color: #000;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-left: 5px;
+            border: 1px solid #000;
+        }
     </style>
 </head>
 <body>
@@ -428,7 +439,8 @@
                     <div class="control-group">
                         <label for="voiceSelect">VOICE:</label>
                         <select id="voiceSelect">
-                            <option value="">Loading voices...</option>
+                            <option value="sam">SAM (1982 Retro) <span class="retro-badge">RETRO</span></option>
+                            <option value="">Loading system voices...</option>
                         </select>
                     </div>
 
@@ -475,7 +487,7 @@
 
             <div class="info-panel">
                 <strong>💡 HOW TO USE IN OTHER APPS:</strong>
-                Most modern browsers support tab audio capture. In Discord/Zoom, look for screen sharing with audio or tab audio options.
+                Most modern browsers support tab audio capture. In Discord/Zoom, look for screen sharing with audio or tab audio options. The SAM voice is a retro 1982 text-to-speech engine!
             </div>
         </div>
 
@@ -484,6 +496,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sam-js/0.1.3/sam.min.js"></script>
     <script>
         let audioContext = null;
         let destination = null;
@@ -492,6 +505,7 @@
         let synth = window.speechSynthesis;
         let voices = [];
         let animationId = null;
+        let currentAudioSource = null;
 
         const textInput = document.getElementById('textInput');
         const voiceSelect = document.getElementById('voiceSelect');
@@ -516,11 +530,15 @@
         // Load voices
         function loadVoices() {
             voices = synth.getVoices();
+            
+            // Keep SAM as first option
+            const samOption = voiceSelect.querySelector('option[value="sam"]');
             voiceSelect.innerHTML = '';
+            voiceSelect.appendChild(samOption);
             
             voices.forEach((voice, index) => {
                 const option = document.createElement('option');
-                option.value = index;
+                option.value = 'system-' + index;
                 option.textContent = `${voice.name} (${voice.lang})`;
                 voiceSelect.appendChild(option);
             });
@@ -584,6 +602,11 @@
                 synth.cancel();
             }
             
+            if (currentAudioSource) {
+                currentAudioSource.stop();
+                currentAudioSource = null;
+            }
+            
             if (animationId) {
                 cancelAnimationFrame(animationId);
             }
@@ -610,8 +633,73 @@
             console.log('Audio routing stopped');
         });
 
+        // Function to speak with SAM
+        function speakWithSAM(text) {
+            return new Promise((resolve, reject) => {
+                try {
+                    // Create SAM instance
+                    const sam = new SamJs();
+                    
+                    // Adjust SAM parameters based on sliders
+                    const speed = Math.round(72 * parseFloat(rateSlider.value)); // SAM speed 0-255
+                    const pitch = Math.round(64 * parseFloat(pitchSlider.value)); // SAM pitch 0-255
+                    
+                    // Generate WAV buffer
+                    const buf8 = sam.buf8(text, speed, pitch);
+                    
+                    if (!buf8) {
+                        reject(new Error('SAM failed to generate audio'));
+                        return;
+                    }
+                    
+                    // Convert to AudioBuffer
+                    const blob = new Blob([buf8], { type: 'audio/wav' });
+                    const reader = new FileReader();
+                    
+                    reader.onload = async (e) => {
+                        try {
+                            const arrayBuffer = e.target.result;
+                            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                            
+                            // Create buffer source
+                            const source = audioContext.createBufferSource();
+                            source.buffer = audioBuffer;
+                            
+                            // Create gain node for volume control
+                            const gainNode = audioContext.createGain();
+                            gainNode.gain.value = parseFloat(volumeSlider.value);
+                            
+                            // Connect: source -> gain -> analyser -> destination
+                            source.connect(gainNode);
+                            gainNode.connect(analyser);
+                            
+                            // Store reference
+                            currentAudioSource = source;
+                            
+                            // Play
+                            source.start(0);
+                            
+                            source.onended = () => {
+                                currentAudioSource = null;
+                                resolve();
+                            };
+                            
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    
+                    reader.onerror = () => reject(new Error('Failed to read audio blob'));
+                    reader.readAsArrayBuffer(blob);
+                    
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
         // Speak button
-        speakBtn.addEventListener('click', () => {
+        speakBtn.addEventListener('click', async () => {
             const text = textInput.value.trim();
             
             if (!text) {
@@ -626,47 +714,74 @@
             
             // Cancel any ongoing speech
             synth.cancel();
-            
-            // Create utterance
-            const utterance = new SpeechSynthesisUtterance(text);
-            
-            // Set voice
-            if (voices.length > 0 && voiceSelect.value) {
-                utterance.voice = voices[voiceSelect.value];
+            if (currentAudioSource) {
+                currentAudioSource.stop();
+                currentAudioSource = null;
             }
             
-            // Set properties
-            utterance.rate = parseFloat(rateSlider.value);
-            utterance.pitch = parseFloat(pitchSlider.value);
-            utterance.volume = parseFloat(volumeSlider.value);
+            const selectedVoice = voiceSelect.value;
             
-            // Event handlers
-            utterance.onstart = () => {
-                speakBtn.disabled = true;
-                cancelBtn.disabled = false;
-                speakBtn.classList.add('speaking');
-            };
+            speakBtn.disabled = true;
+            cancelBtn.disabled = false;
+            speakBtn.classList.add('speaking');
             
-            utterance.onend = () => {
+            try {
+                if (selectedVoice === 'sam') {
+                    // Use SAM voice
+                    await speakWithSAM(text);
+                    speakBtn.disabled = false;
+                    cancelBtn.disabled = true;
+                    speakBtn.classList.remove('speaking');
+                } else {
+                    // Use system voice
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    
+                    // Set voice
+                    if (selectedVoice.startsWith('system-')) {
+                        const voiceIndex = parseInt(selectedVoice.replace('system-', ''));
+                        if (voices.length > 0 && voices[voiceIndex]) {
+                            utterance.voice = voices[voiceIndex];
+                        }
+                    }
+                    
+                    // Set properties
+                    utterance.rate = parseFloat(rateSlider.value);
+                    utterance.pitch = parseFloat(pitchSlider.value);
+                    utterance.volume = parseFloat(volumeSlider.value);
+                    
+                    // Event handlers
+                    utterance.onend = () => {
+                        speakBtn.disabled = false;
+                        cancelBtn.disabled = true;
+                        speakBtn.classList.remove('speaking');
+                    };
+                    
+                    utterance.onerror = (event) => {
+                        console.error('Speech error:', event);
+                        speakBtn.disabled = false;
+                        cancelBtn.disabled = true;
+                        speakBtn.classList.remove('speaking');
+                    };
+                    
+                    // Speak
+                    synth.speak(utterance);
+                }
+            } catch (error) {
+                console.error('Speech error:', error);
+                alert('Error generating speech: ' + error.message);
                 speakBtn.disabled = false;
                 cancelBtn.disabled = true;
                 speakBtn.classList.remove('speaking');
-            };
-            
-            utterance.onerror = (event) => {
-                console.error('Speech error:', event);
-                speakBtn.disabled = false;
-                cancelBtn.disabled = true;
-                speakBtn.classList.remove('speaking');
-            };
-            
-            // Speak
-            synth.speak(utterance);
+            }
         });
 
         // Cancel button
         cancelBtn.addEventListener('click', () => {
             synth.cancel();
+            if (currentAudioSource) {
+                currentAudioSource.stop();
+                currentAudioSource = null;
+            }
             speakBtn.disabled = false;
             cancelBtn.disabled = true;
             speakBtn.classList.remove('speaking');
